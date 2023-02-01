@@ -1,4 +1,5 @@
 import {Request, Response, NextFunction} from 'express';
+import jwt from 'jsonwebtoken';
 
 export const requireAuth = (req:Request, res:Response, next:NextFunction) => {
   const authHeader = req.headers.authorization
@@ -14,5 +15,13 @@ export const requireAuth = (req:Request, res:Response, next:NextFunction) => {
       message: "No token provided"
     })
   }
-  next()
+  jwt.verify(token, "secret", (err, user) => {
+    if(err) {
+      return res.status(401).json({
+        message: "Invalid token"
+      })
+    }
+      req.user = user;
+      next()
+  })
 }
